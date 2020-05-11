@@ -59,7 +59,8 @@ public class ApplciationResource {
     }
     
     /**
-     * Get Recommended Systems
+     * Get Recommended Systems other than given
+     * if not available then send default systems
      * @param id
      * @return
      */
