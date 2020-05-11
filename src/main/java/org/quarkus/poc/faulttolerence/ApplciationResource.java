@@ -21,7 +21,7 @@ import org.jboss.resteasy.annotations.jaxrs.PathParam;
  * @author saravankumarr
  *
  */
-@Path("/application")
+@Path("/faulttolerance")
 @Produces(MediaType.APPLICATION_JSON)
 public class ApplciationResource {
 
@@ -37,6 +37,7 @@ public class ApplciationResource {
      */
     @GET
     @Retry(maxRetries = 4)
+    @Path("/app")
     public List<Application> applications() {
         final Long invocationNumber = counter.getAndIncrement();
 
@@ -63,7 +64,7 @@ public class ApplciationResource {
      * @return
      */
     @GET
-    @Path("/{id}/OtherService")
+    @Path("/{id}/otherapp")
     @Fallback(fallbackMethod = "fallbackRecommendations")
     @Timeout(250)
     public List<Application> recommendations(@PathParam int id) {
