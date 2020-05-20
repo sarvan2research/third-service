@@ -11,7 +11,7 @@ import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
 
-@Path("/metrics")
+@Path("/prime")
 public class PrimeNumberChecker {
 
   private long highestPrimeNumberSoFar = 2;

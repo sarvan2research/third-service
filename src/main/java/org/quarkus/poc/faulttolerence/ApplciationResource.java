@@ -21,7 +21,7 @@ import org.jboss.resteasy.annotations.jaxrs.PathParam;
  * @author saravankumarr
  *
  */
-@Path("/faulttolerance")
+@Path("/s3")
 @Produces(MediaType.APPLICATION_JSON)
 public class ApplciationResource {
 
