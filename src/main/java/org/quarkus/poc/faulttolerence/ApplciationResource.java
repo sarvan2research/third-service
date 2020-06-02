@@ -27,7 +27,7 @@ import org.jboss.resteasy.annotations.jaxrs.PathParam;
  */
 @Path("/s3")
 @Produces(MediaType.APPLICATION_JSON)
-@Counted(name = "performedS3Checks", description = "How many S3 app endpoints hitted checks have been performed.")
+//@Counted(name = "performedS3Checks", description = "How many S3 app endpoints hitted checks have been performed.")
 public class ApplciationResource {
 
     private static final Logger LOGGER = Logger.getLogger(ApplciationResource.class);
@@ -37,9 +37,9 @@ public class ApplciationResource {
 
     private AtomicLong counter = new AtomicLong(0);
     
-    private AtomicLong failedS3Counter = new AtomicLong(0);
-    
-    private AtomicLong fallbackCounter = new AtomicLong(0);
+//    private AtomicLong failedS3Counter = new AtomicLong(0);
+//    
+//    private AtomicLong fallbackCounter = new AtomicLong(0);
     
 
     /**Make retry until it sucess
@@ -51,7 +51,7 @@ public class ApplciationResource {
     public List<Application> applications() {
         final Long invocationNumber = counter.getAndIncrement();
 
-        maybeFail(String.format("ApplicationResource#coffees() invocation #%d failed", invocationNumber));
+        maybeFail(String.format("ApplicationResource#applications() invocation #%d failed", invocationNumber));
 
         LOGGER.infof("ApplicationResource#Applications() invocation #%d returning successfully", invocationNumber);
         return applicationRepositoryService.getAllApplication();
@@ -63,7 +63,7 @@ public class ApplciationResource {
      */
     private void maybeFail(String failureLogMessage) {
         if (new Random().nextBoolean()) {
-          fallbackCounter.getAndIncrement();
+//          fallbackCounter.getAndIncrement();
             LOGGER.error(failureLogMessage);
             throw new RuntimeException("Resource failure.");
         }
@@ -79,7 +79,7 @@ public class ApplciationResource {
     @Path("/{id}/otherapp")
     @Fallback(fallbackMethod = "fallbackRecommendations")
     @Timeout(250)
-    @Timed(name = "fallBackTimer", description = "A measure of how long it takes to perform recommedation.", unit = MetricUnits.MILLISECONDS)
+    //@Timed(name = "fallBackTimer", description = "A measure of how long it takes to perform recommedation.", unit = MetricUnits.MILLISECONDS)
     public List<Application> recommendations(@PathParam int id) {
         long started = System.currentTimeMillis();
         final long invocationNumber = counter.getAndIncrement();
@@ -115,14 +115,16 @@ public class ApplciationResource {
     private void randomDelay() throws InterruptedException {
         Thread.sleep(new Random().nextInt(500));
     }
-    
-    @Gauge(name = "S3failed", unit = MetricUnits.NONE, description = "No of times S3 application failed hit failed far")
-    public AtomicLong failedS3CounterMethod() {
-        return failedS3Counter;
-    }
-    
-    @Gauge(name = "fallBackMethod", unit = MetricUnits.NONE, description = "No of times fall back method hitted called instead of actual")
-    public AtomicLong fallBacks3CounterMethod() {
-        return failedS3Counter;
-    }
+//    
+//    @Gauge(name = "S3failed", unit = MetricUnits.NONE, description = "No of times S3 application failed hit failed far")
+//    public Long failedS3CounterMethod() {
+//      System.out.println("S3failed counter +"+ failedS3Counter);
+//      return failedS3Counter.get();
+//    }
+//    
+//    @Gauge(name = "fallBackMethod", unit = MetricUnits.NONE, description = "No of times fall back method hitted called instead of actual")
+//    public Long fallBacks3CounterMethod() {
+//      System.out.println("fallBackMethod counter +"+ failedS3Counter);
+//        return failedS3Counter.get();
+//    }
 }
