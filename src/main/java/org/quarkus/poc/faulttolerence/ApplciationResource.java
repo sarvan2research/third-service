@@ -14,6 +14,10 @@ import javax.ws.rs.core.MediaType;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.annotations.jaxrs.PathParam;
 
@@ -23,6 +27,7 @@ import org.jboss.resteasy.annotations.jaxrs.PathParam;
  */
 @Path("/s3")
 @Produces(MediaType.APPLICATION_JSON)
+@Counted(name = "performedS3Checks", description = "How many S3 app endpoints hitted checks have been performed.")
 public class ApplciationResource {
 
     private static final Logger LOGGER = Logger.getLogger(ApplciationResource.class);
@@ -31,6 +36,11 @@ public class ApplciationResource {
     private ApplicationRepositoryService applicationRepositoryService;
 
     private AtomicLong counter = new AtomicLong(0);
+    
+    private AtomicLong failedS3Counter = new AtomicLong(0);
+    
+    private AtomicLong fallbackCounter = new AtomicLong(0);
+    
 
     /**Make retry until it sucess
      * @return
@@ -53,6 +63,7 @@ public class ApplciationResource {
      */
     private void maybeFail(String failureLogMessage) {
         if (new Random().nextBoolean()) {
+          fallbackCounter.getAndIncrement();
             LOGGER.error(failureLogMessage);
             throw new RuntimeException("Resource failure.");
         }
@@ -68,6 +79,7 @@ public class ApplciationResource {
     @Path("/{id}/otherapp")
     @Fallback(fallbackMethod = "fallbackRecommendations")
     @Timeout(250)
+    @Timed(name = "fallBackTimer", description = "A measure of how long it takes to perform recommedation.", unit = MetricUnits.MILLISECONDS)
     public List<Application> recommendations(@PathParam int id) {
         long started = System.currentTimeMillis();
         final long invocationNumber = counter.getAndIncrement();
@@ -102,5 +114,15 @@ public class ApplciationResource {
      */
     private void randomDelay() throws InterruptedException {
         Thread.sleep(new Random().nextInt(500));
+    }
+    
+    @Gauge(name = "S3failed", unit = MetricUnits.NONE, description = "No of times S3 application failed hit failed far")
+    public AtomicLong failedS3CounterMethod() {
+        return failedS3Counter;
+    }
+    
+    @Gauge(name = "fallBackMethod", unit = MetricUnits.NONE, description = "No of times fall back method hitted called instead of actual")
+    public AtomicLong fallBacks3CounterMethod() {
+        return failedS3Counter;
     }
 }
